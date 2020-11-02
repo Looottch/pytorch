@@ -43,10 +43,10 @@ TEST(VulkanAPITest, add) {
 }
 
 TEST(VulkanAPITest, add_) {
-  auto a_cpu = at::rand({11, 7, 139, 109}, at::device(at::kCPU).dtype(at::kFloat));
+  auto a_cpu = at::rand({61, 17, 29, 83}, at::device(at::kCPU).dtype(at::kFloat));
   auto a_vulkan = a_cpu.vulkan();
 
-  const auto b_cpu = at::rand({11, 7, 139, 109}, at::device(at::kCPU).dtype(at::kFloat));
+  const auto b_cpu = at::rand({61, 17, 29, 83}, at::device(at::kCPU).dtype(at::kFloat));
   const auto b_vulkan = b_cpu.vulkan();
 
   a_cpu.add_(b_cpu, 2.1f);
@@ -56,7 +56,7 @@ TEST(VulkanAPITest, add_) {
 }
 
 TEST(VulkanAPITest, add_scalar) {
-  const auto a_cpu = at::rand({1, 1, 1, 1}, at::device(at::kCPU).dtype(at::kFloat));
+  const auto a_cpu = at::rand({13, 23, 59, 73}, at::device(at::kCPU).dtype(at::kFloat));
   const auto a_vulkan = a_cpu.vulkan();
 
   const float b_scalar = 3.1415f;
@@ -68,37 +68,13 @@ TEST(VulkanAPITest, add_scalar) {
 }
 
 TEST(VulkanAPITest, add_scalar_) {
-  auto a_cpu = at::rand({11, 7, 139, 109}, at::device(at::kCPU).dtype(at::kFloat));
+  auto a_cpu = at::rand({47, 2, 23, 97}, at::device(at::kCPU).dtype(at::kFloat));
   auto a_vulkan = a_cpu.vulkan();
 
   const float b_scalar = 3.1415f;
 
   a_cpu.add_(b_scalar, 2.1f);
   a_vulkan.add_(b_scalar, 2.1f);
-
-  ASSERT_TRUE(almostEqual(a_cpu, a_vulkan.cpu()));
-}
-
-TEST(VulkanAPITest, mul_scalar) {
-  const auto a_cpu = at::rand({17, 213, 213, 7}, at::device(at::kCPU).dtype(at::kFloat));
-  const auto a_vulkan = a_cpu.vulkan();
-
-  const float b_scalar = 3.1415f;
-
-  const auto c_cpu = at::mul(a_cpu, b_scalar);
-  const auto c_vulkan = at::mul(a_vulkan, b_scalar);
-
-  ASSERT_TRUE(almostEqual(c_cpu, c_vulkan.cpu()));
-}
-
-TEST(VulkanAPITest, mul_scalar_) {
-  auto a_cpu = at::rand({11, 7, 139, 109}, at::device(at::kCPU).dtype(at::kFloat));
-  auto a_vulkan = a_cpu.vulkan();
-
-  const float b_scalar = 3.1415f;
-
-  a_cpu.mul_(b_scalar);
-  a_vulkan.mul_(b_scalar);
 
   ASSERT_TRUE(almostEqual(a_cpu, a_vulkan.cpu()));
 }
@@ -129,6 +105,76 @@ TEST(VulkanAPITest, clamp_) {
   ASSERT_TRUE(almostEqual(a_cpu, a_vulkan.cpu()));
 }
 
+// TEST(VulkanAPITest, conv2d_depthwise) {
+//   constexpr struct {
+//     uint32_t batches;
+//     uint32_t channels;
+//     uint32_t width;
+//     uint32_t height;
+
+//     std::vector<int64_t> size() const {
+//       return { batches, channels, width, height, };
+//     }
+//   } input {
+//     1u,
+//     3u,
+//     16u,
+//     16u,
+//   };
+
+//   constexpr struct {
+//     uint32_t output_channels;
+//     uint32_t input_channels;
+//     uint32_t width;
+//     uint32_t height;
+
+//     std::vector<int64_t> size() const {
+//       return { output_channels, input_channels, width, height, };
+//     }
+//   } weights {
+//     4u,
+//     input.channels,
+//     3u,
+//     3u,
+//   };
+
+//   const auto input_cpu = at::rand(input.size(), at::device(at::kCPU).dtype(at::kFloat));
+//   const auto weights_cpu = at::rand(weights.size(), at::device(at::kCPU).dtype(at::kFloat));
+//   const auto bias_cpu = at::zeros({4}, at::device(at::kCPU).dtype(at::kFloat));
+
+//   int64_t groups = 1;
+//   std::vector<int64_t> stride{1, 1};
+//   std::vector<int64_t> padding{0, 0};
+//   std::vector<int64_t> dilation{1, 1};
+
+//   const auto output_cpu = at::conv2d(
+//       input_cpu,
+//       weights_cpu,
+//       bias_cpu,
+//       stride,
+//       padding,
+//       dilation,
+//       groups);
+
+//   const auto output_vulkan = at::conv2d(
+//       input_cpu.vulkan(),
+//       weights_cpu,
+//       bias_cpu,
+//       stride,
+//       padding,
+//       dilation,
+//       groups);
+
+//   // const bool check = almostEqual(output_cpu, output_vulkan.cpu());
+
+//   // if (!check) {
+//   //   std::cout << "expected:\n" << output_cpu << std::endl;
+//   //   std::cout << "got:\n" << output_vulkan.cpu() << std::endl;
+//   // }
+
+//   // ASSERT_TRUE(check);
+// }
+
 TEST(VulkanAPITest, copy) {
   const auto cpu = at::rand({13, 17, 37, 19}, at::device(at::kCPU).dtype(at::kFloat));
   ASSERT_TRUE(exactlyEqual(cpu, cpu.vulkan().cpu()));
@@ -136,6 +182,30 @@ TEST(VulkanAPITest, copy) {
 
 TEST(VulkanAPITest, empty) {
   ASSERT_NO_THROW(at::empty({1, 17, 41, 53}, at::device(at::kVulkan).dtype(at::kFloat)));
+}
+
+TEST(VulkanAPITest, mul_scalar) {
+  const auto a_cpu = at::rand({17, 213, 213, 7}, at::device(at::kCPU).dtype(at::kFloat));
+  const auto a_vulkan = a_cpu.vulkan();
+
+  const float b_scalar = 3.1415f;
+
+  const auto c_cpu = at::mul(a_cpu, b_scalar);
+  const auto c_vulkan = at::mul(a_vulkan, b_scalar);
+
+  ASSERT_TRUE(almostEqual(c_cpu, c_vulkan.cpu()));
+}
+
+TEST(VulkanAPITest, mul_scalar_) {
+  auto a_cpu = at::rand({11, 7, 139, 109}, at::device(at::kCPU).dtype(at::kFloat));
+  auto a_vulkan = a_cpu.vulkan();
+
+  const float b_scalar = 3.1415f;
+
+  a_cpu.mul_(b_scalar);
+  a_vulkan.mul_(b_scalar);
+
+  ASSERT_TRUE(almostEqual(a_cpu, a_vulkan.cpu()));
 }
 
 } // namespace
